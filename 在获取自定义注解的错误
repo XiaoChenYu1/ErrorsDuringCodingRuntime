@@ -1,0 +1,72 @@
+import java.lang.reflect.Method;
+
+/**
+ * 测试的主类
+ */
+@NewAnnotation(className = "com.nchu.javase_streng.annotation.TestClass",methodName ="demoMethod")
+public class NewAnnotationDemo {
+    public static void main(String[] args) throws Exception {
+        // 1、获取class字节码对象
+        Class cls = NewAnnotationDemo.class;
+        // 2、获取类上的注解
+        NewAnnotation na = (NewAnnotation) cls.getAnnotation(NewAnnotation.class);
+        // 3、获取注解的详细内容 --> 为什么可以调用这个NewAnnotation接口中的方法
+            /* 在执行的时候在NewAnnotationDemo类上有这个NewAnnotation的注解，在JVM上后台回生成一个类实现这个
+             NewAnnotation类，并回重写方法，你就可以操作了 */
+        String className = na.className();
+        String methodName = na.methodName();
+        // 4、通过类名进行加载类到内存中
+        Class demoClass = Class.forName(className);
+        // 5、new类，创建类
+        TestClass testClass = (TestClass) demoClass.newInstance();
+        // 6、获取TestClass类上的相应方法
+        Method method = demoClass.getMethod(methodName);
+        // 7、执行对应的方法
+        method.invoke(testClass); // demoMethod...run...
+    }
+}
+
+// 下面时在不同的文件类中，此处在同一页面下，但并不是在同一个文件中
+// 这是正确的行医方式，就是在自定义注解中上方加上元注解@Retention(RetentionPolicy.RUNTIME)
+// 让这个自定义注解在运行时期是可以被识别的
+// 如果没有加上话，就会在上方测试主类获取注解的时候获取不到
+// 之后使用注解的时候就会出现空指针访问异常
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * @author 小晨Yu呀!
+ * @time 2021-06-25
+ * 自定义的注释接口
+ */
+@Target({ElementType.TYPE,ElementType.METHOD,ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface NewAnnotation {
+    String className();// 加载类的名字
+    String methodName();// 运行方法的名字
+}
+/*
+// 错误的写法：注意区别，上方已经讲解清楚
+
+@Target({ElementType.TYPE,ElementType.METHOD,ElementType.FIELD})
+public @interface NewAnnotation {
+    String className();// 加载类的名字
+    String methodName();// 运行方法的名字
+}
+
+*/
+
+/**
+ * @author 小晨Yu呀!
+ * @time 2021-06-25
+ * 测试运行的副类
+ */
+public class TestClass {
+    public void demoMethod(){
+        System.out.println("demoMethod...run...");
+    }
+
+}
+
