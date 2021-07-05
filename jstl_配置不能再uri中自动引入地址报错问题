@@ -1,0 +1,17 @@
+
+关于引入了jstl的jar包之后不能够在<%@ taglib="c" uri="..."%>中的uri中填写地址报错问题：
+问题原因：
+  没有在moudle中引入配置对应的jar包   
+解决方法：
+  第一步：点击打开Project Structure
+  点击左侧的module，选中你想导入jstl标签库的module，点击右侧Dependencles。
+
+  第二步：点击右侧+键，选中第一项
+  找到你项目下你添加jstl.jar和standard.jar的位置，添加进来。
+
+  第三步：点击左侧Artifacts，选中你想导入的module
+  在WEB-INF中创建lib目录
+  点击右侧Avaliable Elements，选中module中jstl.jar和standard.jar，右键put into /WEB-INF/lib。
+  点击ok。
+
+  此时通过快捷键Alt+/已经可以成功导入uri路径：
