@@ -1,0 +1,24 @@
+关于这个问题，我找了一下资料，其实就是MySQL版本和配置的区别问题
+
+1、
+  com.mysql.jdbc.Driver 是 mysql-connector-java 5中的
+  JDBC连接Mysql5 com.mysql.jdbc.Driver:
+
+2、
+  com.mysql.cj.jdbc.Driver 是 mysql-connector-java 6中的
+  JDBC连接Mysql6 com.mysql.cj.jdbc.Driver， 需要指定时区serverTimezone
+
+解决方法：
+  1.1、如果你用的mysql-connector-java 5，配置的是com.mysql.cj.jdbc.Driver的配置就会报java.lang.ClassNotFoundException: com.mysql.cj.jdbc.Driver这个错误。
+  1.2、如果你用的mysql-connector-java 6，配置的是com.mysql.jdbc.Driver的配置也会出现错误，总之MySQL版本要与其配置对应好。
+ 
+ 总结：所以你在IDEA中配置信息就需要将你的mysql数据库.jar包进行替换。
+    在Idea当中配置mysql文件相对叫复杂，可以参考：https://blog.csdn.net/weixin_45627031/article/details/107358073
+    
+    你可以在工程下创建目录：
+        1、lib文件，将你的所有配置文件.jar包导入到这个目录中，
+        2、右击lib文件，下拉选择 Add as Libary
+        3、进入creat Libary
+             创建Name
+             选择导入目标：Project/Moudle/Groubal Libary【一般是Moudle中】
+             一路ok...
