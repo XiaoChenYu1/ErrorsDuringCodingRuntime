@@ -1,0 +1,113 @@
+1、src下的数据库配置文件：druid.properties
+  
+  # druid.properties文件的配置
+  driverClassName=com.mysql.jdbc.Driver
+  url=jdbc:mysql://localhost:3306/xiaoChenYu?rewriteBatchedStatements=true
+  username=root
+  password=9834
+  # 初始化连接数量
+  initialSize=10
+  # 最大连接数
+  maxActive=50
+  #最小连接数
+  minIdle=5
+  # 最大超时时间  最长等5秒
+  maxWait=5000
+  
+2、手写一个JdbcUtilsDruid 工具类
+
+  package com.nchu.utils;
+
+  import com.alibaba.druid.pool.DruidDataSourceFactory;
+  import javax.sql.DataSource;
+  import java.io.FileInputStream;
+  import java.sql.Connection;
+  import java.sql.ResultSet;
+  import java.sql.SQLException;
+  import java.sql.Statement;
+  import java.util.Properties;
+
+  /**
+   * @author 小晨Yu呀!
+   * @time 2021-07-26
+   * JDBCUtil：Druid连接池的工具类
+   */
+  public class JDBCUtil {
+      private static DataSource ds;
+
+      static{
+          Properties properties = new Properties();
+          try {
+              properties.load(new FileInputStream("src/druid.properties"));
+              ds = DruidDataSourceFactory.createDataSource(properties);
+          } catch (Exception e) {
+              e.printStackTrace();
+          }
+      }
+
+      /**
+       * 获取连接
+       */
+      public static Connection getConnection() throws SQLException {
+          return ds.getConnection();
+      }
+
+      /**
+       * 释放资源
+       */
+      public static void close(Statement stmt,Connection conn){
+          close(null,stmt,conn);
+      }
+      public static void close(ResultSet rs,Statement stmt, Connection conn){
+          if(rs != null){
+              try {
+                  rs.close();
+              } catch (SQLException e) {
+                  e.printStackTrace();
+              }
+          }
+          if(stmt != null){
+              try {
+                  stmt.close();
+              } catch (SQLException e) {
+                  e.printStackTrace();
+              }
+          }
+          if(conn != null){
+              try {
+                  conn.close();
+              } catch (SQLException e) {
+                  e.printStackTrace();
+              }
+          }
+      }
+
+      /**
+       * 获取连接池
+       */
+      public static DataSource getDataSource(){
+          return ds;
+      }
+  }
+
+3、测试JDBCUtil工具类
+  public class JdbcTemplateDemo1 {
+      @Test
+      public void test_1(){
+          JdbcTemplate template = new JdbcTemplate(JDBCUtil.getDataSource());
+          /*String sql = "select * from emp where empno = ?";*/
+          String sql = "update emp set sal = 10000 where empno = ?";
+          template.update(sql,7369);
+
+      }
+  }
+
+
+
+总结记录：这里需要注意的是，由于mysql版本不相同的问题，
+  在这里我配置的MySQL驱动是5.1.26版本的，所以是在：com.mysql.jdbc.Driver当中
+  如果：时使用8版本以上的就是在com.mysql.cj.jdbc.Driver当中，而且还注意在druid配置文件当中相互一要配置时区的问题
+    对于这个问题，具体在之前项目中编写的JDBCUtil工具类中有具体的体现。
+
+
+  
